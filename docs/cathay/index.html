@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+	<head>
+	</head>
+	<body>
+		<!-- 前端開發時新增之CSS請放在此行下方 -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.css" integrity="sha512-6lLUdeQ5uheMFbWm3CP271l14RsX1xtx+J5x2yeIDkkiBpeVTNhTqijME7GgRKKi6hCqovwCoBTlRBEC20M8Mg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link rel="stylesheet" type="text/css" href="./index.css"  />
+
+
+		<!-- 下方的DIV為可被替換成RichText內容，前端開發之Html麻煩替換掉下方的DIV -->
+		<div class="member-content member-bg">
+			<div class="member-artboard">
+				<img src="./img/artboard.png" alt="產險選國泰">
+				<img class="mobile-img" src="./img/artboard-mobile.png" alt="產險選國泰">
+			</div>
+
+			<div class="float-btn button">
+				<a target="_blank" href="https://www.cathay-ins.com.tw/INSOCWeb/servlet/HttpDispatcher/OCH1_0200/prompt">
+					<div class="btn-img button">
+						<img src="./img/shortcut-icon.png" alt="快速註冊">
+					</div>
+				</a>
+			</div>
+
+			<div class="top-section">
+				<div class="primary-title text">
+					國泰產險會員獨享優惠
+				</div>
+				<div class="icons">
+					<div class="icon-with-text" onclick="jumpToSection('line-section')">
+						<img src="./img/line-icon.png" alt="LINE綁定便捷服務">
+						<img class="hover" src="./img/line-icon-hover.png" alt="LINE綁定便捷服務">
+						<div class="text tertiary-title">LINE綁定</br>便捷服務</div>
+					</div>
+					<div class="icon-with-text" onclick="jumpToSection('benefits-section')">
+						<img src="./img/benefits-icon.png" alt="會員好康活動">
+						<img class="hover" src="./img/benefits-icon-hover.png" alt="會員好康活動">
+						<div class="text tertiary-title">會員</br>好康活動</div>
+					</div>
+					<div class="icon-with-text" onclick="jumpToSection('promotion-section')">
+						<img src="./img/promotion-icon.png" alt="專屬推薦獎勵">
+						<img class="hover" src="./img/promotion-icon-hover.png" alt="專屬推薦獎勵">
+						<div class="text tertiary-title">專屬</br>推薦獎勵</div>
+					</div>
+					<div class="icon-with-text" onclick="jumpToSection('collaboration-section')">
+						<img src="./img/collaboration-icon.png" alt="合作商家優惠">
+						<img class="hover" src="./img/collaboration-icon-hover.png" alt="合作商家優惠">
+						<div class="text tertiary-title">合作</br>商家優惠</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="question-section">
+				<div class="content-card card-wrap step-0">
+
+					<div class="a-step-content step-0">
+						<div class="content-img">
+							<img src="./img/question-step-0-img.png" alt="產險選國泰">
+						</div>
+						<div class="content-right">
+							<div class="text question-title step-0-title">
+								<span>3</span>個問題
+							</div>
+							<div class="text secondary-title step-0-desc">
+								查看最適合您的專屬優惠
+							</div>
+							<div class="button start-btn" onclick="gotoStep('step-1')">
+								<img src="./img/question-step-0-btn.png" alt="產險選國泰">
+							</div>
+						</div>
+					</div>
+
+					<div class="a-step-content step-1">
+						<div class="text question-title question">
+							<div>您是否曾經註冊成為</div><div>國泰產險會員？</div>
+						</div>
+						<div class="options-section">
+							<div class="a-option button" onclick="answerQuestion(1, 'Y')">
+								<img src="./img/question-option-yes.png" alt="Yes">
+								<img class="hover" src="./img/question-option-yes-hover.png" alt="Yes">
+							</div>
+
+							<div class="a-option button" onclick="answerQuestion(1, 'N')">
+								<img src="./img/question-option-no.png" alt="No">
+								<img class="hover" src="./img/question-option-no-hover.png" alt="No">
+							</div>
+						</div>
+					</div>
+
+					<div class="a-step-content step-2">
+						<div class="text question-title question">
+							<div>您有綁定過</div><div>國泰產險官方LINE嗎？</div>
+						</div>
+						<div class="options-section">
+							<div class="a-option button" onclick="answerQuestion(2, 'Y')">
+								<img src="./img/question-option-yes.png" alt="Yes">
+								<img class="hover" src="./img/question-option-yes-hover.png" alt="Yes">
+							</div>
+
+							<div class="a-option button" onclick="answerQuestion(2, 'N')">
+								<img src="./img/question-option-no.png" alt="No">
+								<img class="hover" src="./img/question-option-no-hover.png" alt="No">
+							</div>
+						</div>
+					</div>
+
+					<div class="a-step-content step-3">
+						<div class="text question-title question">
+							<div>您是否曾經線上投保</div><div>過國泰產險？</div>
+						</div>
+						<div class="options-section">
+							<div class="a-option button" onclick="answerQuestion(3, 'Y')">
+								<img src="./img/question-option-yes.png" alt="Yes">
+								<img class="hover" src="./img/question-option-yes-hover.png" alt="Yes">
+							</div>
+
+							<div class="a-option button" onclick="answerQuestion(3, 'N')">
+								<img src="./img/question-option-no.png" alt="No">
+								<img class="hover" src="./img/question-option-no-hover.png" alt="No">
+							</div>
+						</div>
+					</div>
+
+					<div class="a-step-content result-1">
+						<div class="content-img">
+							<img src="./img/question-result-1-img.png" alt="產險選國泰">
+						</div>
+
+						<div class="content-right">
+							<div class="text secondary-title result-title">
+								<div>加入國泰產險會員</div><div>享專屬福利</div>
+							</div>
+
+							<a target="_blank" href="https://www.cathay-ins.com.tw/INSOCWeb/servlet/HttpDispatcher/OCH1_0200/prompt">
+								<div class="button result-btn">
+									<img src="./img/question-result-1-btn.png" alt="立即註冊">
+								</div>
+							</a>
+
+						</div>
+					</div>
+
+					<div class="a-step-content result-2">
+						<div class="content-img">
+							<img src="./img/question-result-2-img.png" alt="產險選國泰">
+						</div>
+
+						<div class="content-right">
+							<div class="text secondary-title result-title">
+								<div>專屬優惠碼,</div><div>揪友拿大獎</div>
+							</div>
+
+							<div class="button result-btn" onclick="jumpToSection('promotion-section')">
+								<img src="./img/question-result-2-btn.png" alt="立即邀請好友">
+							</div>
+						</div>
+					</div>
+
+					<div class="a-step-content result-3">
+						<div class="content-img">
+							<img src="./img/question-result-3-img.png" alt="產險選國泰">
+						</div>
+
+						<div class="content-right">
+							<div class="text secondary-title result-title">
+								<div>綁定官方LINE</div><div>查詢更方便</div>
+							</div>
+
+							<div class="button result-btn" onclick="jumpToSection('line-section')">
+								<img src="./img/question-result-3-btn.png" alt="立即註冊">
+							</div>
+						</div>
+					</div>
+
+					<div class="a-step-content result-4">
+						<div class="content-img">
+							<img src="./img/question-result-4-img.png" alt="產險選國泰">
+						</div>
+
+						<div class="content-right">
+							<div class="text secondary-title result-title">
+								<div>好運扭蛋機,</div><div>完成任務抽大獎</div>
+							</div>
+
+							<div class="button result-btn" onclick="jumpToSection('benefits-section')">
+								<img src="./img/question-result-4-btn.png" alt="立即參加">
+							</div>
+						</div>
+					</div>
+
+					<div class="a-step-content result-5">
+						<div class="content-img">
+							<img src="./img/question-result-5-img.png" alt="產險選國泰">
+						</div>
+
+						<div class="content-right">
+							<div class="text secondary-title result-title">
+								<div>會員獨享</div><div>合作夥伴優惠</div>
+							</div>
+
+							<div class="button result-btn" onclick="jumpToSection('collaboration-section')">
+								<img src="./img/question-result-5-btn.png" alt="立即查看">
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="line-section" id="line-section">
+				<div class="primary-title text">
+					LINE綁定便捷服務
+				</div>
+				<div class="line-secondary-title secondary-title text">
+					國泰產險官方LINE，先加入再綁定 好康不漏接
+				</div>
+
+				<div class="content-card card-wrap">
+					<div class="line-card-top-section">
+						<div class="left-img">
+							<img src="./img/line-card-img.png" alt="掃我立即加入">
+							<img class="mobile-img" src="./img/line-card-img-mobile.png" alt="掃我立即加入">
+						</div>
+						<div class="info">
+							<div class="a-info">
+								<div class="check">
+									<img src="./img/line-card-checkbox.png" alt="合作商家優惠">
+								</div>
+								<div class="a-info-desc text tertiary-title">最新消息報你知</div>
+							</div>
+
+							<div class="a-info">
+								<div class="check">
+									<img src="./img/line-card-checkbox.png" alt="合作商家優惠">
+								</div>
+								<div class="a-info-desc text tertiary-title">保單查詢、理賠服務好方便</div>
+							</div>
+
+							<div class="a-info">
+								<div class="check">
+									<img src="./img/line-card-checkbox.png" alt="合作商家優惠">
+								</div>
+								<div class="a-info-desc text tertiary-title">輕鬆線上繳費及續保服務</div>
+							</div>
+
+							<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/line/">
+								<div class="line-btn button">
+									<img src="./img/line-card-btn.png" alt="點我查看更多">
+								</div>
+							</a>
+						</div>
+					</div>
+
+					<div class="mobile-btns">
+						<a target="_blank" href="https://cathayins.tw/7eVPjdj4YX">
+							<div class="left-btn">
+								<img src="./img/line-card-btn-mobile-1.png" alt="點我加個LINE">
+							</div>
+						</a>
+
+						<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/line/">
+							<div class="right-btn">
+								<img src="./img/line-card-btn-mobile-2.png" alt="詳情看更多">
+							</div>
+						</a>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="benefits-section" id="benefits-section">
+				<div class="primary-title text">
+					會員好康活動
+				</div>
+
+				<div class="benefits">
+					<div class="slider multiple-items">
+						<!-- 串接資料？ -->
+						<div><div class="a-benefit card-wrap small">
+							<div class="benefit-img radius-10">
+								<img src="./img/benefits-sample-img-1.png" alt="event-image">
+							</div>
+							<div class="desc-section">
+								<div class="text benefit-card-title title">好運扭蛋機</div>
+								<div class="text card-desc-text desc">完成免費會員任務,就送扭蛋機會〜多項好禮等著你</div>
+								<div class="text card-desc-text date">2024/01/15~12/31</div>
+							</div>
+
+							<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/memberevent2024/">
+								<div class="more-btn button">
+									<img src="./img/benefits-more-btn.png" alt="more">
+								</div>
+							</a>
+						</div></div>
+
+						<div><div class="a-benefit card-wrap small">
+							<div class="benefit-img radius-10">
+								<img src="./img/benefits-sample-img-2.png" alt="event-image">
+							</div>
+							<div class="desc-section">
+								<div class="text benefit-card-title title">全站刮刮樂</div>
+								<div class="text card-desc-text desc">完成任務即可抽萬元即享券等多項好禮</div>
+								<div class="text card-desc-text date">2024/04/01~12/31</div>
+							</div>
+
+							<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/lottery2024/">
+								<div class="more-btn button">
+									<img src="./img/benefits-more-btn.png" alt="more">
+								</div>
+							</a>
+						</div></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="promotion-section" id="promotion-section">
+				<div class="primary-title text">
+					專屬推薦獎勵
+				</div>
+
+				<div class="content-card card-wrap">
+					<div class="left-img">
+						<img src="./img/promotion-card-img.png" alt="推薦獎勵">
+					</div>
+					<div class="info">
+						<div class="text primary-title info-title">
+							<span>呼朋喚友</span>專屬活動
+							<br/>
+							分享越多<span>獎越多</span>
+						</div>
+						<div class="btn-section">
+
+							<a target="_blank" href="https://www.cathay-ins.com.tw/INSOCWeb/servlet/HttpDispatcher/OCH1_0000/promptForCommon?loginForwardTrx=OCG1_0100/prompt">
+								<div class="invite-btn button">
+									<img src="./img/promotion-invite-btn.png" alt="邀請好友">
+								</div>
+							</a>
+
+							<a target="_blank" href="https://www.cathay-ins.com.tw/INSOCWeb/servlet/HttpDispatcher/OCH1_0200/prompt">
+								<div class="join-btn button">
+									<img src="./img/promotion-join-btn.png" alt="新加入會員">
+								</div>
+							</a>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="collaboration-section" id="collaboration-section">
+				<div class="primary-title text title">
+					合作商家優惠
+				</div>
+
+				<div class="collaboration-collection">
+					<div class="button collapsible card-wrap small ">
+						<div class="collaboration-collection-bullet green"></div>
+						<div class="secondary-title collapsible-title">交通生活</div>
+						<div class="arrow">
+							<svg xmlns="http://www.w3.org/2000/svg" width="21.655" height="11.186" viewBox="0 0 21.655 11.186">
+								<path data-name="Path 1" d="m1842.616 3048.012 8.983-8.17 9.142 8.17" transform="translate(-1840.85 -3038.592)" style="fill:none;stroke:#999;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.5px"/>
+							</svg>
+						</div>
+					</div>
+
+					<div class="content">
+						<!-- 接資料 / 內文有換行需要要把 \n 換成 <br/> -->
+						<div class="a-collaboration card-wrap small">
+							<div class="collaboration-img radius-10">
+								<img src="./img/collaboration-sample-img-1.png" alt="event-image">
+							</div>
+							<div class="desc-section">
+								<div class="text collaboration-card-title  title">搭Uber去機場，單趟最高折240元</div>
+								<div class="text card-desc-text desc">
+									1.活動期間線上投保海外旅遊險，可獲得限量Uber乘車優惠
+									<br/>
+									2.數量有限送完為止,恕不另行通知或補發
+									<br/>
+									3.Uber乘車優惠由Uber提供
+									<br/>
+									4.不同優惠代碼每位會員限各領取一次，詳細活動內容請見活動頁
+								</div>
+								<div class="text card-desc-text date">2024/6/2~2025/6/30</div>
+							</div>
+
+							<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/events/list/union/Uber2024/">
+								<div class="link-btn button">
+									<img src="./img/collaboration-link-btn.png" alt="more">
+								</div>
+							</a>
+						</div>
+					</div>
+
+					<!-- mobile slides -->
+					<div class="title-mobile">
+						<div class="collaboration-collection-bullet green"></div>
+						<div class="secondary-title collapsible-title">交通生活</div>
+					</div>
+
+					<div class="slider-mobile multiple-items">
+						<!-- 串接資料？ -->
+						<div><div class="a-collaboration card-wrap small">
+							<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/events/list/union/Uber2024/">
+								<div class="collaboration-img radius-10">
+									<img src="./img/collaboration-sample-img-1.png" alt="event-image">
+								</div>
+							</a>
+						</div></div>
+					</div>
+				</div>
+
+
+				<div class="collaboration-collection">
+					<div class="button collapsible card-wrap small ">
+						<div class="collaboration-collection-bullet blue"></div>
+						<div class="secondary-title collapsible-title">戶外旅遊</div>
+						<div class="arrow">
+							<svg xmlns="http://www.w3.org/2000/svg" width="21.655" height="11.186" viewBox="0 0 21.655 11.186">
+								<path data-name="Path 1" d="m1842.616 3048.012 8.983-8.17 9.142 8.17" transform="translate(-1840.85 -3038.592)" style="fill:none;stroke:#999;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.5px"/>
+							</svg>
+						</div>
+					</div>
+
+					<div class="content">
+						<!-- 接資料 / 內文有換行需要要把 \n 換成 <br/> -->
+						<div class="a-collaboration card-wrap small">
+							<div class="collaboration-img radius-10">
+								<img src="./img/collaboration-sample-img-2.png" alt="event-image">
+							</div>
+							<div class="desc-section">
+								<div class="text collaboration-card-title  title">國泰產險會員獨享出國上網最高eSIM1GB 體驗</div>
+								<div class="text card-desc-text desc">
+									1.登入會員中心,免費領取JetFimobile eSIM 300/500MB優惠惠
+									<br/>
+									2.活動期間線上投保海外旅遊險,且投保天數5天(含)以上、保額700萬元含)以上·享有JetFimobile eSIM 1GB或WIFI分享器全球兩天優惠
+									<br/>
+									3.本活動優惠序號由Jetfimobile提供
+									<br/>
+									4.不同優惠代碼每位會員限各領取一次,詳細活動內容請見活動頁
+								</div>
+								<div class="text card-desc-text date">2024/6/2~2025/6/30</div>
+							</div>
+
+							<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/events/list/union/jetfi2024/">
+								<div class="link-btn button">
+									<img src="./img/collaboration-link-btn.png" alt="more">
+								</div>
+							</a>
+						</div>
+
+						<div class="a-collaboration card-wrap small">
+							<div class="collaboration-img radius-10">
+								<img src="./img/collaboration-sample-img-3.png" alt="event-image">
+							</div>
+							<div class="desc-section">
+								<div class="text collaboration-card-title  title">Hikingbook Pro會員訂閱方案75折/9折優惠</div>
+								<div class="text card-desc-text desc">
+									1.登入會員中心,立即享Hikingbook Pro員訂閱方案9折優惠
+									<br/>
+									2.活動期間線上投保登山險,可獲得Hikingbook Pro會員訂閱方案75折優惠
+									<br/>
+									3.Pro會員訂閱方案優惠由Hikingbook提供
+									<br/>
+									4.不同優惠代碼每位會員限各領取一次,詳細活動內容請見活動頁
+								</div>
+								<div class="text card-desc-text date">2024/8/15~2024/12/31</div>
+							</div>
+
+							<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/events/list/union/hikingbook/">
+								<div class="link-btn button">
+									<img src="./img/collaboration-link-btn.png" alt="more">
+								</div>
+							</a>
+						</div>
+
+					</div>
+
+					<!-- mobile slides -->
+					<div class="title-mobile">
+						<div class="collaboration-collection-bullet blue"></div>
+						<div class="secondary-title collapsible-title">戶外旅遊</div>
+					</div>
+
+					<div class="slider-mobile multiple-items">
+						<!-- 串接資料？ -->
+						<div><div class="a-collaboration card-wrap small">
+							<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/events/list/union/jetfi2024/">
+								<div class="collaboration-img radius-10">
+									<img src="./img/collaboration-sample-img-2.png" alt="event-image">
+								</div>
+							</a>
+						</div></div>
+						<div><div class="a-collaboration card-wrap small">
+							<a target="_blank" href="https://www.cathay-ins.com.tw/cathayins/personal/events/list/union/hikingbook/">
+								<div class="collaboration-img radius-10">
+									<img src="./img/collaboration-sample-img-3.png" alt="event-image">
+								</div>
+							</a>
+						</div></div>
+					</div>
+				</div>
+
+				<div class="collaboration-collection">
+					<div class="button collapsible card-wrap small ">
+						<div class="collaboration-collection-bullet pink"></div>
+						<div class="secondary-title collapsible-title">居家生活</div>
+						<div class="arrow">
+							<svg xmlns="http://www.w3.org/2000/svg" width="21.655" height="11.186" viewBox="0 0 21.655 11.186">
+								<path data-name="Path 1" d="m1842.616 3048.012 8.983-8.17 9.142 8.17" transform="translate(-1840.85 -3038.592)" style="fill:none;stroke:#999;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.5px"/>
+							</svg>
+						</div>
+					</div>
+
+					<div class="content">
+						<!-- 接資料 / 內文有換行需要要把 \n 換成 <br/> -->
+					</div>
+
+					<!-- mobile slides -->
+					<div class="title-mobile">
+						<div class="collaboration-collection-bullet pink"></div>
+						<div class="secondary-title collapsible-title">居家生活</div>
+					</div>
+
+					<div class="slider-mobile multiple-items">
+						<!-- 串接資料？ -->
+					</div>
+
+				</div>
+
+		</div>
+
+		<!-- 前端開發時新增的JS麻煩在此行之後引用，謝謝!-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+		<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				// setup slides
+				$('.benefits-section .benefits .multiple-items').slick({
+					dots: true,
+					customPaging : () => null,
+					infinite: true,
+					slidesToShow: 2,
+					slidesToScroll: 2,
+					prevArrow: "<img class='arrow left' src='./img/slick-arrow.png'>",
+					nextArrow: "<img class='arrow right' src='./img/slick-arrow.png'>",
+					responsive:[{
+						breakpoint: 992,
+							settings: {
+								slidesToScroll: 1,
+								variableWidth: true,
+								arrows: false
+							}
+						},
+					],
+				});
+
+				$('.collaboration-section .collaboration-collection .multiple-items').slick({
+					dots: true,
+					customPaging : () => null,
+					infinite: false,
+					slidesToScroll: 1,
+					variableWidth: true,
+					arrows: false
+				});
+
+				// setup collapsible
+				setupCollapsible();
+			});
+
+			const setupCollapsible = () => {
+				var coll = document.getElementsByClassName("collapsible");
+				for (var i = 0; i < coll.length; i++) {
+					coll[i].addEventListener("click", function() {
+						this.classList.toggle("active");
+						var content = this.nextElementSibling;
+						if (content.style.display === "block") {
+							content.style.display = "none";
+						} else {
+							content.style.display = "block";
+						}
+					});
+				}
+			}
+
+			const answerRecord = new Array(3);
+
+			const answerQuestion = (questionNumber, answer) => {
+				answerRecord[questionNumber - 1] = answer
+				// answerRecord.push(answer);
+				console.log('answer record:', answer)
+
+				if (questionNumber < 3) {
+					gotoStep('step-' + String(questionNumber + 1));
+				} else {
+					console.log('show result by answer', answerRecord);
+
+					if (answerRecord[0] == 'N') {
+						gotoStep('result-1'); // 註冊入會
+					} else if (answerRecord[1] == 'Y') {
+						if (answerRecord[2] == 'Y') {
+							gotoStep('result-2'); // 專屬優惠碼
+						} else {
+							gotoStep('result-5'); // 異業合作
+						}
+					} else {
+						if (answerRecord[2] == 'Y') {
+							gotoStep('result-3'); // LINE
+						} else {
+							gotoStep('result-4'); // 扭蛋
+						}
+					}
+				}
+			};
+
+			// step-0, step-1, step-2, step-3,
+			// result-1, result-2, result-3, result-4, result-5,
+			const gotoStep = (step) => {
+				const contentCard = document.querySelector('.question-section .content-card');
+				// 移除所有以 'step-' 或 'result-' 開頭的 class
+				contentCard.classList.forEach(className => {
+						if (className.startsWith('step-') || className.startsWith('result-')) {
+								contentCard.classList.remove(className);
+						}
+				});
+				contentCard.classList.add(step);
+			};
+
+			const jumpToSection = (id) => {
+			  const element = document.getElementById(id);
+			  element.scrollIntoView({ block: 'center',  behavior: 'smooth' });
+			}
+
+
+		</script>
+
+	</body>
+</html>
