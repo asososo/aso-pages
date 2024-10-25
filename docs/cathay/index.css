@@ -5,7 +5,7 @@ body {
 	width: 100%;
 	height: auto;
 	position: relative;
-	background: url(./img/bg.png) top center no-repeat;
+	background: url(./img/bg.png) top center repeat-y;
 	background-size: 100% auto ;
 	background-attachment: fixed;
 	padding-bottom: 60px;
