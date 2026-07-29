@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>網址去漬機</title>
+<meta name="description" content="貼上網址，展開短連結，去掉 utm、fbclid、gclid、igshid 等追蹤參數。">
+<style>
+  :root{
+    --wash:#DDE7E4;
+    --paper:#FBFDFC;
+    --ink:#16221F;
+    --muted:#6C807B;
+    --line:#C6D6D1;
+    --accent:#1B6B58;
+    --accent-dark:#12503F;
+    --strike:#A03E56;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--wash);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    padding:clamp(28px,7vw,72px) 20px 64px;
+  }
+  main{max-width:640px;margin:0 auto}
+
+  /* ---- hero specimen ---- */
+  .specimen{
+    font-family:var(--mono);
+    font-size:clamp(11px,2.9vw,13.5px);
+    line-height:1.75;
+    word-break:break-all;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-bottom:26px;
+  }
+  .specimen .keep{color:var(--ink)}
+  .specimen .junk{
+    color:var(--muted);
+    text-decoration:line-through;
+    text-decoration-color:transparent;
+    text-decoration-thickness:1.5px;
+    transition:text-decoration-color .5s ease .1s, color .5s ease .1s, opacity .5s ease .1s;
+  }
+  .specimen.struck .junk{
+    color:var(--strike);
+    text-decoration-color:var(--strike);
+    opacity:.6;
+  }
+
+  h1{font-size:clamp(28px,7vw,38px);letter-spacing:-.02em;font-weight:800;margin:0 0 10px}
+  .lede{margin:0 0 4px;color:var(--muted);font-size:15px}
+  .note{margin:0 0 28px;color:var(--muted);font-size:13px;opacity:.85}
+
+  /* ---- input row ---- */
+  .bar{display:flex;gap:10px;align-items:stretch}
+  .field{position:relative;flex:1 1 auto;min-width:0}
+  #src{
+    width:100%;
+    font-family:var(--mono);font-size:14px;
+    color:var(--ink);background:var(--paper);
+    border:1px solid var(--line);border-radius:10px;
+    padding:13px 40px 13px 14px;
+  }
+  #src::placeholder{color:#9DAFAA}
+  #src::-webkit-search-cancel-button{display:none}
+  #clear{
+    position:absolute;right:9px;top:50%;transform:translateY(-50%);
+    width:22px;height:22px;padding:0;
+    display:grid;place-items:center;
+    background:rgba(108,128,123,.15);color:var(--muted);
+    border:none;border-radius:50%;cursor:pointer;
+    transition:background .15s ease,color .15s ease;
+  }
+  #clear[hidden]{display:none}
+  #clear:hover{background:rgba(160,62,86,.14);color:var(--strike)}
+  #clear svg{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+  #src:focus-visible,#go:focus-visible,.icon-btn:focus-visible,#endpoint:focus-visible,summary:focus-visible,#clear:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;
+  }
+  #go{
+    flex:0 0 auto;
+    font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:.02em;
+    color:#F4FAF8;background:var(--accent);
+    border:none;border-radius:10px;
+    padding:13px 20px;cursor:pointer;
+    transition:background .15s ease;
+  }
+  #go:hover{background:var(--accent-dark)}
+  #go[disabled]{opacity:.55;cursor:wait}
+
+  /* ---- result ---- */
+  #out{margin-top:26px}
+  #out[hidden]{display:none}
+  .card{
+    position:relative;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 52px 16px 16px;
+    animation:rise .28s ease both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  #clean{display:block;font-family:var(--mono);font-size:13.5px;line-height:1.7;word-break:break-all;color:var(--ink)}
+  .icon-btn{
+    position:absolute;top:10px;right:10px;
+    width:32px;height:32px;display:grid;place-items:center;
+    background:transparent;border:1px solid var(--line);border-radius:8px;
+    color:var(--muted);cursor:pointer;
+    transition:color .15s ease,border-color .15s ease;
+  }
+  .icon-btn:hover{color:var(--accent);border-color:var(--accent)}
+  .icon-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .icon-btn .check{display:none}
+  .icon-btn.done{color:var(--accent);border-color:var(--accent)}
+  .icon-btn.done .clip{display:none}
+  .icon-btn.done .check{display:block}
+
+  #meta{margin:12px 2px 0;font-size:13px;color:var(--muted)}
+  #meta:empty{display:none}
+
+  #fallback{margin:8px 2px 0;font-size:13px}
+  #fallback[hidden]{display:none}
+
+  #diag{margin:10px 2px 0}
+  #diag[hidden]{display:none}
+  #diag summary{font-size:12px}
+  #diagList{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+  #diagList li{
+    font-family:var(--mono);font-size:11.5px;line-height:1.55;
+    color:var(--strike);opacity:.85;word-break:break-all;
+    padding-left:11px;position:relative;
+  }
+  #diagList li::before{content:"·";position:absolute;left:2px}
+  #openLink{color:var(--accent);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;word-break:break-all}
+  #openLink:hover{color:var(--accent-dark)}
+  #openLink:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  ul#removed{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0;padding:0}
+  ul#removed:empty{display:none}
+  ul#removed li{
+    font-family:var(--mono);font-size:11.5px;
+    color:var(--strike);
+    text-decoration:line-through;
+    text-decoration-color:rgba(160,62,86,.55);
+    background:rgba(160,62,86,.07);
+    border:1px solid rgba(160,62,86,.2);
+    border-radius:5px;padding:3px 7px;word-break:break-all;
+  }
+
+  .error{color:var(--strike);font-size:14px;margin:26px 2px 0;line-height:1.7}
+  .error:empty{display:none}
+
+  footer{margin-top:44px;font-size:12px;color:var(--muted);opacity:.85;line-height:1.75}
+  details{margin-top:18px}
+  summary{cursor:pointer;font-size:12px;color:var(--muted);list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";font-size:10px}
+  details[open] summary::before{content:"▾ "}
+  #endpoint{
+    display:block;width:100%;margin-top:10px;
+    font-family:var(--mono);font-size:12px;
+    color:var(--ink);background:var(--paper);
+    border:1px solid var(--line);border-radius:8px;padding:9px 11px;
+  }
+  .hint{margin:8px 0 0;font-size:11.5px;color:var(--muted);opacity:.9}
+
+  @media (max-width:480px){
+    .bar{flex-direction:column}
+    #go{padding:14px 20px}
+    .card{padding:16px;padding-top:50px}
+    .icon-btn{top:10px;left:10px;right:auto}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="specimen" id="specimen" aria-hidden="true"><span class="keep">https://www.threads.com/@aso/post/C8xK2p</span><span class="junk">?igshid=NTc4MmI&amp;utm_source=ig_web&amp;fbclid=IwAR2q</span></div>
+
+  <h1>網址去漬機</h1>
+  <p class="lede">貼上網址，展開短連結，去掉 utm、fbclid、gclid、igshid 這類追蹤參數。</p>
+  <p class="note">參數清理完全在你的瀏覽器裡跑，不連外。只有短網址需要展開時才會呼叫代理。</p>
+
+  <div class="bar">
+    <div class="field">
+      <input id="src" type="url" inputmode="url" spellcheck="false" autocomplete="off"
+             placeholder="https://www.threads.com/share/_3nM7aG79/" aria-label="要清理的網址">
+      <button id="clear" type="button" hidden aria-label="清除輸入" title="清除">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <button id="go" type="button">去掉追蹤碼</button>
+  </div>
+
+  <p class="error" id="err" role="alert"></p>
+
+  <section id="out" hidden aria-live="polite">
+    <div class="card">
+      <code id="clean"></code>
+      <button class="icon-btn" id="copy" type="button" aria-label="複製網址" title="複製網址">
+        <svg class="clip" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+        <svg class="check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+      </button>
+    </div>
+    <p id="meta"></p>
+    <p id="fallback" hidden><a id="openLink" href="#" target="_blank" rel="noopener noreferrer">在新分頁打開原連結，再把跳轉後的網址貼回來 ↗</a></p>
+    <details id="diag" hidden>
+      <summary id="diagSummary">代理錯誤細節</summary>
+      <ul id="diagList"></ul>
+    </details>
+    <ul id="removed"></ul>
+  </section>
+
+  <footer>
+    <p style="margin:0">參數規則涵蓋 utm_*、pk_*、mtm_* 等前綴，加上各平台專屬追蹤碼（YouTube 的 si、X 的 t/s、Threads 的 igshid/xmt、Bilibili 的 spm_id_from 等）。Amazon 商品頁會縮成 /dp/ 短形式，l.facebook.com 這類轉址包裝會自動拆掉。</p>
+
+    <details>
+      <summary>展開短網址老是失敗？用自己的端點</summary>
+      <input id="endpoint" type="url" spellcheck="false" autocomplete="off"
+             placeholder="https://your-worker.workers.dev/?url={url}" aria-label="自訂展開端點">
+      <p class="hint">填了就優先用它。端點收到網址後，回傳最終網址純文字或 <code>{"url":"..."}</code> 即可。這個檔案最下方的註解裡有一份可以直接貼上 Cloudflare Workers 的程式碼。網址只存在這個分頁，重整就沒了。</p>
+    </details>
+  </footer>
+</main>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============ 追蹤參數規則 ============ */
+
+  const EXACT = new Set([
+    'fbclid','gclid','gclsrc','dclid','gbraid','wbraid','msclkid','ttclid','twclid',
+    'yclid','ysclid','igshid','igsh','xmt','mibextid','rdid','epik','li_fat_id',
+    'cvid','vero_id','vero_conv','wickedid','_openstat','oly_anon_id','oly_enc_id',
+    's_kwcid','ef_id','pcrid','otc','soc_src','soc_trk',
+    'mc_cid','mc_eid','mkt_tok','ml_subscriber','ml_subscriber_hash','__s',
+    '_hsenc','_hsmi','hsctatracking','__hssc','__hstc','__hsfp',
+    '_ga','_gl','ga_source','ga_medium','ga_campaign','ga_term','ga_content',
+    'ncid','xtor','srsltid','guccounter','guce_referrer','guce_referrer_sig',
+    'ref','ref_src','ref_url','referrer','referer','source','from','from_source',
+    'campaign','campaign_id','cmpid','icid','ito','trk','trkcampaign','sr_share',
+    'share_source','share_medium','share_plate','share_app_id','share_token',
+    'shared_link','app_id','feature'
+  ]);
+
+  const PREFIX = ['utm_','pk_','mtm_','piwik_','matomo_','stm_','hsa_','vero_',
+                  'oly_','at_','wt_','wt.','sc_','trk_','spm_','cm_','ns_','mkt_'];
+
+  const SITE = [
+    { m:/(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)youtube-nocookie\.com$/,
+      drop:['si','pp','feature','ab_channel','kw','pbjreload','app','embeds_referring_euri','source_ve_path'] },
+    { m:/(^|\.)(twitter|x)\.com$/, drop:['t','s'] },
+    { m:/(^|\.)(instagram|threads)\.(com|net)$/, drop:['img_index_hint','e','_nc_ht'] },
+    { m:/(^|\.)facebook\.com$/, drop:['comment_tracking','notif_t','notif_id','ftentidentifier','__tn__','__cft__','eav','paipv'] },
+    { m:/(^|\.)bilibili\.com$/,
+      drop:['spm_id_from','vd_source','from_spmid','share_plus','share_from','share_times',
+            'share_tag','unique_k','buvid','up_id','is_story_h5','mid','plat_id','timestamp',
+            'bbid','ts','session_id','broadcast_type','is_room_feed','refer_from'] },
+    { m:/(^|\.)(taobao|tmall|1688)\.com$/,
+      drop:['spm','scm','ali_trackid','pvid','ns','abbucket','sourceType','suid','ut_sk','un','share_crt_v','sp_tk','cpp','shareurl','short_name','app'] },
+    { m:/(^|\.)(shopee|shp)\.(tw|ee|com)$/, drop:['sp_atk','xptdk','is_from_login','af_siteid','af_click_lookback','pid','c'] },
+    { m:/(^|\.)spotify\.com$/, drop:['si','nd','context'] },
+    { m:/(^|\.)ebay\./, drop:['hash','_trkparms','_trksid','amdata'] },
+    { m:/(^|\.)(reddit|redd)\.(com|it)$/, drop:['share_id','rdt','correlation_id','post_fullname','ref_campaign','type','context'] },
+    { m:/(^|\.)tiktok\.com$/, drop:['is_from_webapp','sender_device','web_id','_r','_t','checksum','sec_user_id','share_link_id','social_sharing','timestamp','user_id'] },
+    { m:/(^|\.)google\./, drop:['ved','ei','usg','sa','sca_esv','oq','gs_lcrp','sourceid','client','biw','bih','uact','sclient','g_ep','g_st','entry','coh','ictx','cshid','shorturl','ucbcb'] },
+    { m:/(^|\.)momoshop\.com\.tw$/, drop:['osm','memid','cid','oid','imgSeqNo','mdiv','ctype'] }
+  ];
+
+  const SHORTENERS = /^(bit\.ly|t\.co|tinyurl\.com|goo\.gl|ow\.ly|buff\.ly|lnkd\.in|is\.gd|rb\.gy|cutt\.ly|shorturl\.at|rebrand\.ly|t\.ly|shrtco\.de|v\.gd|s\.id|amzn\.to|fb\.me|m\.me|dlvr\.it|trib\.al|wp\.me|reurl\.cc|pse\.is|pros\.is|lihi\.cc|lihi\.io|lihi1\.cc|lihi1\.com|lihi2\.cc|lihi2\.com|lihi3\.cc|lihi3\.com|myppt\.cc|shp\.ee|shope\.ee|risu\.io|forms\.gle|maps\.app\.goo\.gl|g\.co|dcard\.tw)$/i;
+
+  const WRAPPERS = [
+    { m:/^l\.facebook\.com$|^lm\.facebook\.com$/, p:['u'] },
+    { m:/^l\.instagram\.com$|^l\.threads\.(com|net)$/, p:['u'] },
+    { m:/^www\.google\.[a-z.]+$/, p:['q','url'] },
+    { m:/^out\.reddit\.com$/, p:['url'] },
+    { m:/^t\.umblr\.com$/, p:['z'] },
+    { m:/^steamcommunity\.com$/, p:['url'] },
+    { m:/^href\.li$/, p:[] }
+  ];
+
+  const LOGINWALL = /\/accounts\/login|\/login\.php|\/challenge|\/checkpoint|consent\.|\/robots\.txt$/i;
+
+  /* ============ 清理邏輯（純前端，不連外） ============ */
+
+  function shouldDrop(key, host){
+    const k = key.toLowerCase();
+    if (EXACT.has(k)) return true;
+    for (const p of PREFIX) if (k.startsWith(p)) return true;
+    for (const r of SITE) if (r.m.test(host) && r.drop.some(d => d.toLowerCase() === k)) return true;
+    return false;
+  }
+
+  function unwrap(u){
+    for (const w of WRAPPERS){
+      if (!w.m.test(u.hostname)) continue;
+      if (!w.p.length){
+        const raw = u.search.slice(1);
+        if (/^https?(%3A|:)/i.test(raw)){
+          try { return new URL(decodeURIComponent(raw)); } catch(e){}
+        }
+      }
+      for (const key of w.p){
+        const v = u.searchParams.get(key);
+        if (v && /^https?:\/\//i.test(v)){
+          try { return new URL(v); } catch(e){}
+        }
+      }
+    }
+    return null;
+  }
+
+  function clean(input){
+    let u;
+    try { u = new URL(String(input).trim()); } catch(e){ return null; }
+    if (!/^https?:$/.test(u.protocol)) return null;
+
+    const removed = [];
+
+    for (let i = 0; i < 3; i++){
+      const inner = unwrap(u);
+      if (!inner) break;
+      u = inner;
+      removed.push('轉址包裝');
+    }
+
+    const host = u.hostname.toLowerCase();
+
+    const asin = /(^|\.)amazon\./.test(host)
+      ? u.pathname.match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})/i) : null;
+
+    if (asin){
+      u.pathname = '/dp/' + asin[1].toUpperCase();
+      for (const [k] of [...u.searchParams]) removed.push(k);
+      u.search = '';
+    } else {
+      for (const [k] of [...u.searchParams]){
+        if (shouldDrop(k, host)){ removed.push(k); u.searchParams.delete(k); }
+      }
+    }
+
+    if (host === 'youtu.be'){
+      const id = u.pathname.slice(1).split('/')[0];
+      if (id){
+        const t = u.searchParams.get('t');
+        u = new URL('https://www.youtube.com/watch?v=' + id + (t ? '&t=' + t : ''));
+      }
+    }
+
+    const frag = u.hash.slice(1);
+    if (/^(Echobox|xtor|xtref|cmpid)/i.test(frag)){
+      removed.push('#' + frag.split('=')[0]);
+      u.hash = '';
+    }
+
+    return {
+      url: u.toString().replace(/\?$/, '').replace(/\?#/, '#'),
+      removed: [...new Set(removed)]
+    };
+  }
+
+  /* ============ 短網址展開 ============ */
+
+  function looksShort(raw){
+    try {
+      const u = new URL(raw);
+      const host = u.hostname.toLowerCase();
+      if (SHORTENERS.test(host)) return true;
+      if (/^\/(share|s|share_url|p)\/[A-Za-z0-9_\-]+\/?$/.test(u.pathname)) return true;
+      const bare = host.replace(/^www\./, '');
+      if (bare.length <= 14 && /^\/[A-Za-z0-9_\-]{4,14}\/?$/.test(u.pathname)) return true;
+      return false;
+    } catch(e){ return false; }
+  }
+
+  function sameTarget(a, b){
+    const norm = s => s.replace(/^https?:\/\//, '').replace(/\/+$/, '').toLowerCase();
+    return norm(a) === norm(b);
+  }
+
+  function fromBody(body, base){
+    if (!body) return '';
+    const pick = re => { const m = body.match(re); return m ? m[1] : ''; };
+    let cand =
+      pick(/^URL Source:\s*(\S+)/m) ||
+      pick(/<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i) ||
+      pick(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:url["']/i) ||
+      pick(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i) ||
+      pick(/<link[^>]+href=["']([^"']+)["'][^>]+rel=["']canonical["']/i) ||
+      pick(/<meta[^>]+http-equiv=["']refresh["'][^>]+content=["'][^"']*url=([^"';]+)["']/i) ||
+      pick(/["'](?:canonical_url|permalink|og_url)["']\s*:\s*["'](https?:[^"']+)["']/i) ||
+      pick(/window\.location(?:\.href)?\s*=\s*["'](https?:[^"']+)["']/i);
+    if (!cand) return '';
+    cand = cand.replace(/\\u0026/g, '&').replace(/\\\//g, '/').replace(/&amp;/g, '&').trim();
+    try { return new URL(cand, base).toString(); } catch(e){ return ''; }
+  }
+
+  const PROXIES = [
+    { name:'codetabs',
+      build: u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
+      read: async r => ({ final:'', body: await r.text() }) },
+    { name:'cors.x2u',
+      build: u => 'https://cors.x2u.in/' + u,
+      read: async r => ({ final:'', body: await r.text() }) },
+    { name:'corsfix',
+      build: u => 'https://corsfix.com/' + u,
+      read: async r => ({ final:'', body: await r.text() }) },
+    { name:'allorigins',
+      build: u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
+      read: async r => { const j = await r.json(); return { final:(j.status && j.status.url) || '', body: j.contents || '' }; } },
+    { name:'jina',
+      build: u => 'https://r.jina.ai/' + u,
+      read: async r => ({ final:'', body: await r.text() }) }
+  ];
+
+  function customProxy(tpl){
+    return {
+      name:'自訂端點',
+      build: u => tpl.indexOf('{url}') >= 0
+        ? tpl.replace('{url}', encodeURIComponent(u))
+        : tpl + encodeURIComponent(u),
+      read: async r => {
+        const text = await r.text();
+        const t = text.trim();
+        if (t.charAt(0) === '{' || t.charAt(0) === '['){
+          try {
+            const j = JSON.parse(t);
+            const v = j.url || j.finalUrl || j.final || j.location || j.resolved;
+            if (v) return { final:v, body:'' };
+          } catch(e){}
+        }
+        if (/^https?:\/\/\S+$/.test(t)) return { final:t, body:'' };
+        return { final:'', body:text };
+      }
+    };
+  }
+
+  // 這裡刻意不傳 AbortSignal：某些沙箱（例如 artifact 的 iframe）會用 postMessage
+  // 把 fetch 轉給外層執行，AbortSignal 無法被 structured clone，整個請求會直接失敗。
+  function withTimeout(p, ms, name){
+    let t;
+    return Promise.race([
+      p,
+      new Promise((_, rej) => { t = setTimeout(() => rej(new Error(name + '：逾時')), ms); })
+    ]).finally(() => clearTimeout(t));
+  }
+
+  function tag(name, e){
+    const raw = (e && e.message) ? e.message : String(e);
+    return raw.indexOf(name + '：') === 0 ? e : new Error(name + '：' + raw);
+  }
+
+  async function attempt(px, input){
+    try {
+      const res = await withTimeout(fetch(px.build(input)), 11000, px.name);
+      if (!res.ok) throw new Error('HTTP ' + res.status + (res.statusText ? ' ' + res.statusText : ''));
+      const { final, body } = await withTimeout(px.read(res), 8000, px.name);
+      const guess = fromBody(body, final || input) || final;
+      if (!guess) throw new Error('回應裡找不到最終網址');
+      if (LOGINWALL.test(guess)) throw new Error('撞到登入牆（' + guess + '）');
+      if (sameTarget(guess, input)) throw new Error('沒有跳轉');
+      return { url: guess, via: px.name };
+    } catch(e){
+      throw tag(px.name, e);
+    }
+  }
+
+  async function expand(input, tpl){
+    const list = tpl ? [customProxy(tpl)].concat(PROXIES) : PROXIES.slice();
+    const errs = [];
+    const tasks = list.map(px =>
+      attempt(px, input).catch(e => {
+        const msg = (e && e.message) ? e.message : px.name + '：失敗';
+        errs.push(msg);
+        console.warn('[expand]', msg);
+        throw e;
+      })
+    );
+    try {
+      return await Promise.any(tasks);
+    } catch(e){
+      return { url:'', errors: errs };
+    }
+  }
+
+  /* ============ UI ============ */
+
+  const $ = id => document.getElementById(id);
+  const srcEl = $('src'), goEl = $('go'), outEl = $('out'), cleanEl = $('clean'),
+        metaEl = $('meta'), remEl = $('removed'), errEl = $('err'),
+        copyEl = $('copy'), endpointEl = $('endpoint'), clearEl = $('clear'),
+        fallbackEl = $('fallback'), openLinkEl = $('openLink'),
+        diagEl = $('diag'), diagSummaryEl = $('diagSummary'), diagListEl = $('diagList');
+
+  setTimeout(() => $('specimen').classList.add('struck'), 450);
+
+  function syncClear(){ clearEl.hidden = srcEl.value.length === 0; }
+  srcEl.addEventListener('input', syncClear);
+  clearEl.addEventListener('click', () => {
+    srcEl.value = '';
+    syncClear();
+    errEl.textContent = '';
+    outEl.hidden = true;
+    srcEl.focus();
+  });
+  syncClear();
+
+  function render(result, note, fallbackUrl, errors){
+    errEl.textContent = '';
+    cleanEl.textContent = result.url;
+    remEl.innerHTML = '';
+    for (const k of result.removed){
+      const li = document.createElement('li');
+      li.textContent = k;
+      remEl.appendChild(li);
+    }
+    metaEl.textContent = note || (result.removed.length ? '' : '這個網址本來就很乾淨，沒有東西要拿掉。');
+
+    if (fallbackUrl){
+      openLinkEl.href = fallbackUrl;
+      fallbackEl.hidden = false;
+    } else {
+      fallbackEl.hidden = true;
+    }
+
+    diagListEl.innerHTML = '';
+    if (errors && errors.length){
+      diagSummaryEl.textContent = errors.length + ' 個代理各自的錯誤';
+      for (const m of errors){
+        const li = document.createElement('li');
+        li.textContent = m;
+        diagListEl.appendChild(li);
+      }
+      diagEl.hidden = false;
+    } else {
+      diagEl.hidden = true;
+    }
+
+    copyEl.classList.remove('done');
+    outEl.hidden = false;
+  }
+
+  function fail(msg){
+    outEl.hidden = true;
+    errEl.textContent = msg;
+  }
+
+  async function run(){
+    let raw = srcEl.value.trim();
+    if (!raw){ fail('先貼一個網址進來。'); return; }
+    if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+    if (!clean(raw)){ fail('這串看起來不是有效的網址，檢查一下開頭跟拼字。'); return; }
+
+    const label = goEl.textContent;
+    let target = raw, note = '', fallbackUrl = '', errs = [];
+
+    if (looksShort(raw)){
+      goEl.disabled = true;
+      goEl.textContent = '展開中…';
+      const got = await expand(raw, endpointEl.value.trim());
+      goEl.disabled = false;
+      goEl.textContent = label;
+
+      if (got.url){
+        target = got.url;
+        note = '已展開短網址（' + got.via + '）。';
+      } else {
+        errs = got.errors || [];
+        const blocked = errs.length && errs.every(m => /failed to fetch|networkerror|load failed|network request failed/i.test(m));
+        const meta = /(instagram|threads|facebook)\./i.test(new URL(raw).hostname);
+        fallbackUrl = raw;
+
+        note = '展開失敗，以下是直接清理原網址的結果。' +
+               (blocked ? ' 每一家都在連線階段就死了，通常代表這個環境不允許對外請求（例如 artifact 預覽的沙箱）——換到 GitHub Pages 或本機 server 再試。' : '') +
+               (meta ? ' Meta 家的分享連結另外會擋掉代理 IP，手動點開比較快。' : '');
+      }
+    }
+
+    const result = clean(target);
+    if (!result){ fail('展開後的網址無法解析，試試看手動點開再貼一次。'); return; }
+    render(result, note, fallbackUrl, errs);
+  }
+
+  goEl.addEventListener('click', run);
+  srcEl.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+
+  copyEl.addEventListener('click', async () => {
+    const text = cleanEl.textContent;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch(e){
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch(_){}
+      ta.remove();
+    }
+    copyEl.classList.add('done');
+    copyEl.setAttribute('aria-label', '已複製');
+    setTimeout(() => {
+      copyEl.classList.remove('done');
+      copyEl.setAttribute('aria-label', '複製網址');
+    }, 1600);
+  });
+})();
+</script>
+
+<!--
+==========================================================================
+ 想要穩定展開短網址？把下面這段貼到 Cloudflare Workers，部署後把網址填進
+ 頁尾的「自訂展開端點」欄位（記得保留 ?url={url}）。免費方案每天十萬次請求。
+
+ export default {
+   async fetch(request) {
+     const cors = {
+       'Access-Control-Allow-Origin': '*',
+       'Access-Control-Allow-Methods': 'GET, OPTIONS',
+       'Content-Type': 'application/json; charset=utf-8'
+     };
+     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
+
+     const target = new URL(request.url).searchParams.get('url');
+     if (!target || !/^https?:\/\//i.test(target)) {
+       return new Response(JSON.stringify({ error: 'bad url' }), { status: 400, headers: cors });
+     }
+
+     let current = target;
+     for (let i = 0; i < 10; i++) {
+       const res = await fetch(current, {
+         redirect: 'manual',
+         headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36' }
+       });
+       const loc = res.headers.get('location');
+       if (res.status >= 300 && res.status < 400 && loc) {
+         current = new URL(loc, current).toString();
+         continue;
+       }
+       // 沒有 HTTP 轉址了，改看 HTML 裡的 og:url / canonical / meta refresh
+       const html = await res.text();
+       const m =
+         html.match(/<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i) ||
+         html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i) ||
+         html.match(/<meta[^>]+http-equiv=["']refresh["'][^>]+content=["'][^"']*url=([^"';]+)["']/i);
+       if (m) current = new URL(m[1].replace(/&amp;/g, '&'), current).toString();
+       break;
+     }
+
+     return new Response(JSON.stringify({ url: current }), { headers: cors });
+   }
+ };
+==========================================================================
+-->
+</body>
+</html>
