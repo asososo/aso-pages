@@ -9,6 +9,17 @@
 		<title>Dirty Baby</title>
 		<!-- 相對路徑是必要的：站台部署在 aso-pages 的子目錄底下，"/" 開頭會指到網域根。 -->
 		<link rel="icon" href="/aso-pages/dagomachi/assets/6_microphone-BHSnL23B.svg" />
+		<!-- GA4。measurement ID 不是機密（前端本來就看得到），寫死比走 env 少一個會忘記
+		     設定的環節。改 ID 要改下面兩處。 -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-YTW80W6ZL2"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag("js", new Date());
+			gtag("config", "G-YTW80W6ZL2");
+		</script>
 		<style>
 			@font-face {
 				font-family: "Cubic 11";
@@ -376,7 +387,7 @@
 				}
 			}
 		</style>
-		<script type="module" crossorigin src="/aso-pages/dagomachi/assets/index-nP4_ie8F.js"></script>
+		<script type="module" crossorigin src="/aso-pages/dagomachi/assets/index-B36edxDx.js"></script>
 	</head>
 	<body>
 		<div id="game"></div>
