@@ -7,6 +7,8 @@
 			content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
 		/>
 		<title>Dirty Baby</title>
+		<!-- 相對路徑是必要的：站台部署在 aso-pages 的子目錄底下，"/" 開頭會指到網域根。 -->
+		<link rel="icon" href="/aso-pages/dagomachi/assets/6_microphone-BHSnL23B.svg" />
 		<style>
 			@font-face {
 				font-family: "Cubic 11";
@@ -199,6 +201,9 @@
 				/* 手機沒有 hover，已解鎖的格子直接就是彩色態 */
 				background-image: var(--active);
 				background-size: cover;
+				/* 格子寬度除不盡，cover 捨入後會差個零點幾 px，預設的 repeat 就拿同一張圖的
+				   另一端補在上緣，看起來像露出別張圖的細縫。 */
+				background-repeat: no-repeat;
 				border: 1px solid rgba(255, 255, 255, 0.3);
 			}
 			.gallery-cell.selected {
@@ -371,7 +376,7 @@
 				}
 			}
 		</style>
-		<script type="module" crossorigin src="/aso-pages/dagomachi/assets/index-BwdLd49k.js"></script>
+		<script type="module" crossorigin src="/aso-pages/dagomachi/assets/index-Dq79e-b-.js"></script>
 	</head>
 	<body>
 		<div id="game"></div>
@@ -440,7 +445,22 @@
 					授權
 				</div>
 				<div>
-					部分素材以模型生成
+					音樂素材來自
+					<a href="https://phoenix1291.itch.io/sound-effects-pack-2" target="_blank" rel="noopener"
+						>phoenix1291</a
+					>
+					/
+					<a href="https://hunteraudio.itch.io/8bit-sfx-and-music-pack" target="_blank" rel="noopener"
+						>hunteraudio</a
+					>
+					/
+					<a href="https://joshuuu.itch.io/short-loopable-background-music" target="_blank" rel="noopener"
+						>joshuuu</a
+					>
+					@itch.io
+				</div>
+				<div>
+					部分素材以 Nano Banana 2 Lite 生成
 				</div>
 			</details>
 		</div>
