@@ -114,7 +114,8 @@
 			}
 			/* 靜音鈕。釘在畫面右下角，蓋過圖鑑的 750——它在每個畫面都要點得到。
 			   兩態靠 .muted 切換 SVG 裡的兩個 group，不換圖檔。 */
-			#mute-button {
+			#mute-button,
+			#help-button {
 				position: fixed;
 				right: 12px;
 				bottom: 12px;
@@ -150,6 +151,86 @@
 			}
 			#mute-button.muted .cross {
 				display: inline;
+			}
+			/* 問號鈕跟靜音鈕同一組樣式，只差水平位置：12 + 44（靜音鈕寬）+ 12 = 68。 */
+			#help-button {
+				right: 68px;
+				font: inherit;
+				font-size: 24px;
+				line-height: 1;
+				padding: 0;
+			}
+			/* 教學彈窗。z-index 蓋過靜音／問號鈕的 800，不然 backdrop 點不到它們底下。 */
+			#tutorial {
+				display: none;
+				position: fixed;
+				inset: 0;
+				z-index: 850;
+				align-items: center;
+				justify-content: center;
+				background: rgba(0, 0, 0, 0.75);
+				color: #fff;
+				font-family: "Cubic 11", monospace;
+			}
+			#tutorial.open {
+				display: flex;
+			}
+			#tutorial-card {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 12px;
+				width: min(90vw, 560px);
+				/* 固定高度而非 max-height：四頁圖片高矮不一，跟著內容伸縮的話翻頁時
+				   卡片會上下抽動，方向鍵也跟著跑掉。 */
+				height: max(60vh, 420px);
+				/* 420px 的下限在很矮的視窗（橫向手機）會爆出畫面，所以再壓一層。 */
+				max-height: 90vh;
+				padding: 20px;
+				box-sizing: border-box;
+				background: #232334;
+				border: 1px solid rgba(255, 255, 255, 0.6);
+				border-radius: 8px;
+			}
+			#tutorial-title {
+				font-size: 22px;
+			}
+			#tutorial-desc {
+				font-size: 14px;
+				line-height: 1.5;
+				text-align: center;
+				opacity: 0.8;
+			}
+			#tutorial-image {
+				flex: 1;
+				min-height: 0;
+				object-fit: contain;
+				max-width: 100%;
+			}
+			#tutorial-nav {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 16px;
+			}
+			#tutorial-nav button {
+				font: inherit;
+				font-size: 20px;
+				padding: 4px 16px;
+				color: #fff;
+				background: rgba(0, 0, 0, 0.4);
+				border: 1px solid rgba(255, 255, 255, 0.6);
+				border-radius: 4px;
+				cursor: pointer;
+			}
+			#tutorial-nav button:disabled {
+				opacity: 0.3;
+				cursor: default;
+			}
+			#tutorial-page {
+				font-size: 14px;
+				min-width: 3em;
+				text-align: center;
 			}
 			#toast {
 				position: fixed;
@@ -387,12 +468,25 @@
 				}
 			}
 		</style>
-		<script type="module" crossorigin src="/aso-pages/dagomachi/assets/index-B36edxDx.js"></script>
+		<script type="module" crossorigin src="/aso-pages/dagomachi/assets/index-Bbr4R9nl.js"></script>
 	</head>
 	<body>
 		<div id="game"></div>
 		<div id="rotate-prompt">請轉直向</div>
 		<div id="toast"></div>
+		<button id="help-button" type="button" aria-label="遊戲說明">？</button>
+		<div id="tutorial">
+			<div id="tutorial-card">
+				<div id="tutorial-title"></div>
+				<div id="tutorial-desc"></div>
+				<img id="tutorial-image" alt="" />
+				<div id="tutorial-nav">
+					<button id="tutorial-prev" type="button" aria-label="上一頁">‹</button>
+					<span id="tutorial-page"></span>
+					<button id="tutorial-next" type="button" aria-label="下一頁">›</button>
+				</div>
+			</div>
+		</div>
 		<button id="mute-button" type="button" aria-label="靜音">
 			<svg viewBox="0 0 24 24" aria-hidden="true">
 				<path class="speaker-body" d="M4 9h3l5-4v14l-5-4H4z" />
@@ -408,10 +502,10 @@
 		</button>
 		<div id="leave-confirm" class="dialog">
 			<div class="dialog-box">
-				<div>確定要離開嗎？</div>
+				<div>真的要放棄這輪遊戲嗎？</div>
 				<div id="leave-confirm-buttons">
 					<button id="leave-cancel-button" type="button">取消</button>
-					<button id="leave-confirm-button" type="button">確認</button>
+					<button id="leave-confirm-button" type="button">狠心棄養</button>
 				</div>
 			</div>
 		</div>
@@ -419,7 +513,7 @@
 			<div class="dialog-box">
 				<img id="c38b-image" alt="C38B" />
 				<div>哇！一隻Ｃ３８Ｂ！</div>
-				<button id="c38b-confirm-button" type="button">確認</button>
+				<button id="c38b-confirm-button" type="button">耶</button>
 			</div>
 		</div>
 		<div id="gallery-screen">
@@ -436,8 +530,8 @@
 		</div>
 		<div id="title-screen">
 			<div id="title-logo"></div>
-			<button id="start-button" type="button">開始</button>
-			<button id="gallery-button" type="button">圖鑑</button>
+			<button id="start-button" type="button">開始遊戲</button>
+			<button id="gallery-button" type="button">查看圖鑑</button>
 			<details id="about-credits">
 				<summary>關於</summary>
 				<div>一切美好屬於達康</div>
